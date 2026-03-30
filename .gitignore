@@ -2,5 +2,5 @@ Test/lightning_logs
 Test/lightning_logs/*
 Test/SavedStats/
 Test/SavedStats/*
-lib/__pycahce__/*
-lib/__pycahce__/
+**__pycache__**
+checkpoints
