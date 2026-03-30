@@ -93,7 +93,7 @@ def createJetData(jet_num, useTestData, set_mu=3, seed=0, n_param=[1, 1, 1, 1, 1
     from systematics import systematics
     from datasets import Data  # Data class for non-public dataset
 
-    use_public_dataset = True
+    use_public_dataset = False
     if use_public_dataset:
         from datasets import Neurips2024_public_dataset as public_dataset
         data = public_dataset()
@@ -128,7 +128,6 @@ def createJetData(jet_num, useTestData, set_mu=3, seed=0, n_param=[1, 1, 1, 1, 1
         diboson_scale=n_param[1],
         bkg_scale=n_param[2],
         seed=seed,
-        get_ans=True
     )
 
     # Prepare weights and detailed labels
@@ -178,7 +177,12 @@ def createJetData(jet_num, useTestData, set_mu=3, seed=0, n_param=[1, 1, 1, 1, 1
 
         # Apply systematics to the training data
         data_vis = systematics(
-            data_set=data_vis_train,
+            data_set={
+                "data": data_vis_train,
+                "weights": data_vis_train["weights"],
+                "detailed_labels": data_vis_train["detailed_labels"],
+                "labels": data_vis_train["labels"],
+            },
             tes=n_param[3],
             jes=n_param[4],
             soft_met=n_param[5],
