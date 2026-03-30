@@ -47,6 +47,7 @@ def main(args):
     print("HEP Challenge Root directory is", root_dir)
 
     train_loader, val_loader, X_mean, X_std = prepare_dataloader(args)
+    device = 'cuda' if torch.cuda.is_available() else 'cpu' 
 
     # Setup callbacks: early stopping and model checkpointing
     early_stop_callback = EarlyStopping(
@@ -70,19 +71,20 @@ def main(args):
         clamp_val=-50,
         n_layers=30,
         X_mean=X_mean,
-        X_std=X_std
+        X_std=X_std,
     )
-
-    device = 'cuda' if torch.cuda.is_available() else 'cpu' 
 
     # Create the trainer and fit the model
     trainer = pl.Trainer(
-        max_epochs=500,default_root_dir=args.checkpoint_path,
+        max_epochs=500,
+        default_root_dir=args.checkpoint_path,
         log_every_n_steps=10,
         accelerator=device,
+        devices=[1],
         callbacks=[checkpoint_callback, early_stop_callback]
     )
     trainer.fit(bg_model, train_loader, val_loader)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Normalizing Flow Model")
