@@ -1,13 +1,17 @@
 import os
-root_dir = os.getcwd()
 import torch
 import numpy as np
 import ast
-import numpy as np
-from scipy.interpolate import SmoothBivariateSpline,interp1d
+from scipy.interpolate import SmoothBivariateSpline, interp1d
 from scipy.optimize import minimize, curve_fit
 import json
-def string_to_tuple_str(s: str) -> tuple:
+from typing import Tuple
+import re
+
+ROOT_DIR = os.getcwd()
+
+
+def string_to_tuple_str(s: str) -> Tuple | None:
     """
     Converts a stringified tuple into an actual tuple of strings.
     
@@ -24,7 +28,8 @@ def string_to_tuple_str(s: str) -> tuple:
     """
     try:
         # Safely evaluate the string to a Python tuple
-        parsed = ast.literal_eval(s)
+        cleaned = re.sub(r"np\.float64\(([^)]+)\)", r"\1", s)
+        parsed = ast.literal_eval(cleaned)
         
         # Check if the result is a tuple with length 2 or 3
         if isinstance(parsed, tuple) and len(parsed) in [2, 3]:
@@ -34,17 +39,18 @@ def string_to_tuple_str(s: str) -> tuple:
             raise ValueError("The string does not represent a tuple of length 2 or 3.")
     
     except (SyntaxError, ValueError) as e:
-        print(f"Error parsing string to tuple: {e}")
+        print(f"Error parsing string to tuple: {e}\n -> '{s}' is not a valid python literal structure")
         return None
 
 
-def prior_theta(theta, mu_theta=1.0, sigma_theta=0.01):
+def prior_theta(theta, mu_theta=1.0, sigma_theta=0.01) -> float:
     """Gaussian prior on theta."""
     return (
         1.0 / (np.sqrt(2 * np.pi) * sigma_theta)
         * np.exp(-0.5 * ((theta - mu_theta) / sigma_theta) ** 2)
     )
     
+
 def compute_mu_nuan_2NP_class(test_data_2j,test_data_1j,dnn_model,bin_splines_S,bin_splines_BG):
     """
     Perform a simultaneous MLE of the global signal fraction `f_s`
