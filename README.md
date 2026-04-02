@@ -8,33 +8,14 @@ This document describes the hardware setup, software dependencies, installation 
 
 ---
 
-## 1. Hardware Setup
+## Software Dependencies and Installation
 
-### 1.1 Hardware Used for Development
-- **Machine:** MacBook Pro (production)
-- **Processor:** Apple M3 Max (unified CPU and GPU)
-- **Memory:** 64 GB RAM
-- **GPU:** Integrated Apple GPU (unified architecture)
+### 1 Required Software
+- **Python:** (Ensure you are using a compatible version, e.g., Python 3.8+). This fork was tested using python 3.12
+- **pip:** For installing Python dependencies or **astral-uv** [installation](https://docs.astral.sh/uv/getting-started/installation/)
+- **3rd-Party Libraries:** Listed in `requirements.txt`
 
-### 1.2 Minimum Hardware Configuration for Deployment
-- **Memory:** 64 GB RAM
-- **GPU:** 1 NVIDIA T4 GPU
-
----
-
-## 2. Operating System / Platform used
-- **OS:** macOS Sonoma 14.1
-
----
-
-## 3. Software Dependencies and Installation
-
-### 3.1 Required Software
-- **Python:** (Ensure you are using a compatible version, e.g., Python 3.8+)
-- **pip:** For installing Python dependencies
-- **3rd-Party Libraries:** Listed in `requirements.txt`  
-
-### 3.2 Installation Steps
+### Installation Steps
 
 1. **Clone the HEP-Challenge Repository**
 
@@ -70,102 +51,109 @@ This document describes the hardware setup, software dependencies, installation 
    pip install -r requirements.txt
    ```
 
+   Or if using `astral-uv`, simply do
+
+   ```bash
+   uv sync
+   ```
+
 ---
 
-## 4. Model Training and Execution
+## Model Training and Execution
 
-### 4.1 Training the Normalizing Flow (NF) Model
+### 1 Training the Normalizing Flow (NF) Model
 
 Run `train_NF.py` with the following arguments:
 
 ```bash
 python train_NF.py \
-  --root-dir "/Users/ibrahim/HEP-Challenge/" \
+  --root-dir "../HEP-Challenge/" \
   --checkpoint-path "Test/" \
   --c 1 \
-  -s True
+  --channel signal \
+  --num_jets 1
 ```
 
 **Argument Details:**
 - `--root-dir`: Root directory containing `input_data`, `ingestion_program`, and `scoring_program` folders.
 - `--checkpoint-path`: Directory to save and/or load the model checkpoint.
 - `--c`: Hyperparameter (default value is 1).
-- `-s`: Boolean flag indicating whether to train on signal data.
-
+- `--channel`: Train on either "signal" or "background"
+- `--num_jets`: either 1 or 2 (although 0 is not forbidden)
 ---
 
-### 4.2 Training the Classifier Model
+### 2 Training the Classifier Model
 
 Run `train_class.py` with these arguments:
 
 ```bash
 python train_class.py \
-  --root_dir "/Users/ibrahim/HEP-Challenge/" \
-  --models_dir "PreTrained/Models/" \
-  --checkpoint_path "Test/"
+  --root-dir "../HEP-Challenge/" \
+  --models-dir "PreTrainedOwnTest/Models/" \
+  --checkpoint-path "Test/"
 ```
 
 **Argument Details:**
-- `--root_dir`: Root directory for data files.
-- `--models_dir`: Directory containing subdirectories `1_jet` and `2_jet` with checkpoint files.
-- `--checkpoint_path`: Directory where model checkpoints will be saved during training.
+- `--root-dir`: Root directory for data files.
+- `--models-dir`: Directory containing subdirectories `1_jet` and `2_jet` with checkpoint files.
+- `--checkpoint-path`: Directory where model checkpoints will be saved during training.
 
 ---
 
-### 4.3 Creating Histograms
+### 3 Creating Histograms
 
 Run `create_hist.py` with the following arguments:
 
 ```bash
 python create_hist.py \
-  --root_dir "/Users/ibrahim/HEP-Challenge/" \
-  --class_model_path "PreTrained/Models/DNN/DNNclass4NF_2.ckpt" \
+  --root-dir "../HEP-Challenge/" \
+  --class_model_path "PreTrainedOwnTest/DNNclass.ckpt" \
   --json_save_path "Test/SavedStats/" \
-  --models_dir "PreTrained/Models/"
+  --models-dir "PreTrainedOwnTest/Models/"
 ```
 
 **Argument Details:**
-- `--root_dir`: Root directory path for data files.
+- `--root-dir`: Root directory path for data files.
 - `--class_model_path`: Path to load the classifier model checkpoint.
 - `--json_save_path`: Directory where the resulting JSON file will be saved.
-- `--models_dir`: Directory containing NF model checkpoints.
+- `--models-dir`: Directory containing NF model checkpoints.
 
 ---
 
-### 4.4 Running Neyman Construction
+### 4 Running Neyman Construction
 
 Run `create_neyman.py` with these arguments:
 
 ```bash
 python create_neyman.py \
-  --hist_path "PreTrained/SavedStats/histogram_2jet1jet_class_4nf_200bins.json" \
+  --hist_path "PreTrainedOwnTest/hist.json" \
   --json_save_path "Test/SavedStats/" \
-  --root_dir "/Users/ibrahim/HEP-Challenge/" \
-  --class_model_path "PreTrained/Models/DNN/DNNclass4NF_2.ckpt" \
-  --models_dir "PreTrained/Models/"
+  --root-dir "../HEP-Challenge/" \
+  --class_model_path "PreTrainedOwnTest/DNNclass.ckpt" \
+  --models-dir "PreTrained/Models/"
 ```
 
 **Argument Details:**
 - `--hist_path`: Path to the input histogram JSON file.
 - `--json_save_path`: Directory to save the output JSON file.
-- `--root_dir`: Root directory path for data files.
+- `--root-dir`: Root directory path for data files.
 - `--class_model_path`: Path to the classifier model checkpoint.
-- `--models_dir`: Directory containing `1_jet` and `2_jet` subdirectories with NF model checkpoint files.
+- `--models-dir`: Directory containing `1_jet` and `2_jet` subdirectories with NF model checkpoint files.
 
 ---
 
-### 4.5 Prediction
+### 5 Prediction
 
 Run `predict.py` with these arguments:
 
 ```bash
 python predict.py \
-  --hist_path "PreTrained/SavedStats/histogram_2jet1jet_class_4nf_200bins.json" \
+  --hist_path "PreTrainedOwnTest/hist.json" \
   --json_save_path "Test/SavedStats/" \
-  --root_dir "/Users/ibrahim/HEP-Challenge/" \
-  --class_model_path "PreTrained/Models/DNN/DNNclass4NF_2.ckpt" \
-  --models_dir "PreTrained/Models/" \
-  --neyman_path "PreTrained/SavedStats/2jet_1jet_2NP_MLE_Final_DNN_test_4NF_200.json" \
+  --root_dir "../HEP-Challenge/" \
+  --class_model_path "PreTrainedOwnTest/DNNclass.ckpt" \
+  --models_dir "PreTrainedOwnTest/Models/" \
+  --neyman_path "PreTrainedOwnTest/SavedStats/neyman.json" \
   --mu 1 \
   --predict_numevents \
   --nevent 10
@@ -184,14 +172,14 @@ python predict.py \
 
 ---
 
-## 5. Important Side Effects
+## Important Side Effects
 
 - **Directory Structure:**  
   - Models are saved in `Test/lighting_logs`. The subsequent processing steps will fail if the directory structure is not changed or if the paths are incorrect.
 
 ---
 
-## 6. Key Assumptions
+## Key Assumptions
 
 - The HEP-Challenge repository is cloned outside the current archive and its path is correctly provided via the `--root-dir` argument.
 - The repository includes the necessary folder structure (`input_data`, `ingestion_program`, `scoring_program`).

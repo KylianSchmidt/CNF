@@ -134,7 +134,7 @@ if __name__ == "__main__":
     )
     # Root directory containing input data and subdirectories for ingestion/scoring.
     parser.add_argument(
-        "--root_dir",
+        "--root-dir",
         type=str,
         default="../HEP-Challenge/",
         help="Root directory path for data files.",
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     )
     # Directory where the Normalizing Flow models are stored.
     parser.add_argument(
-        "--models_dir",
+        "--models-dir",
         type=str,
         default="PreTrained/Models/",
         help="Path to the directory containing the '1_jet' and '2_jet' subdirectories with checkpoint files.",
