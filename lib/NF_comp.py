@@ -2,6 +2,7 @@
 import torch
 from torch import nn
 
+
 class AffineCouplingLayerGated(nn.Module):
     """
     A RealNVP-style affine coupling layer with gating.
@@ -12,7 +13,7 @@ class AffineCouplingLayerGated(nn.Module):
     
     where g = sigmoid(gate) is computed from the network.
     """
-    def __init__(self, input_dim, mask):
+    def __init__(self, input_dim, mask, device: str = "cpu"):
         """
         Args:
             input_dim (int): Dimensionality of the input.
