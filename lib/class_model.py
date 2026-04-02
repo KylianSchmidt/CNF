@@ -4,6 +4,7 @@ from torch import nn
 import pytorch_lightning as pl
 import torch.nn.functional as F
 
+
 class CombinedClassifier(pl.LightningModule):
     def __init__(self, hidden_dim=128, latent_dim=256, lr=1e-3):
         super().__init__()

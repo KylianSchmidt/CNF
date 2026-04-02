@@ -8,9 +8,6 @@ class NormalizingFlowModel(pl.LightningModule):
     """
     PyTorch Lightning Module for training the normalizing flow.
     """
-    X_mean: torch.Tensor
-    X_std: torch.Tensor
-
     def __init__(
         self,
         input_dim=2,
