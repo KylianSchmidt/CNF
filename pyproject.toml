@@ -19,3 +19,12 @@ dependencies = [
     "torch==2.3.0",
     "xgboost>=3.2.0",
 ]
+
+[tool.flake8]
+max_line_length = 120
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 120
